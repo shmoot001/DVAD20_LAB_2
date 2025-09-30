@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Experiment script for Practical Assignment #2 (Basic Track)
+Experiment script for Practical Assignment #2
 - Builds one-pod fat-tree topo
 - Runs WebSearch & DataMining flows
 - Logs Flow Completion Times (FCT)
@@ -42,6 +42,7 @@ WEBSEARCH_ECDF = [(10_000,0.10),(20_000,0.30),(35_000,0.60),
 DATAMINING_ECDF = [(200,0.10),(300,0.20),(450,0.30),
                    (570,0.40),(600,0.60),(650,0.70),
                    (700,0.80),(900,1.0)]
+
 
 def sample_from_ecdf(ecdf):
     r = random.random()
@@ -144,6 +145,11 @@ def main():
     net=Mininet(topo=topo,link=TCLink,switch=OVSSwitch,controller=None,autoSetMacs=True)
     net.addController("c0",controller=RemoteController,ip="127.0.0.1",port=6633)
     net.start()
+
+    # ✅ Sätt statiska ARP-tabeller så att inga ARP-requests skickas
+    net.staticArp()
+    print("[ARP] Static ARP tables installed on all hosts")
+
     try:
         exp=Experiment(net); exp.run(times=10,intensity=10,duration=10)
         df=load_flows()
