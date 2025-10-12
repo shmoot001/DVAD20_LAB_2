@@ -2,10 +2,11 @@
 """
 Plot script for Lab 2 results
 - Reads flows.jsonl and stats.csv
-- Generates three plots:
+- Generates four plots:
   1. CDF of FCT (WebSearch + DataMining)
   2. Mean FCT vs Intensity
   3. 95th/99th percentile FCT vs Intensity
+  4. Boxplot of FCT distribution (with outliers)
 """
 
 import json
@@ -95,11 +96,54 @@ def plot_percentiles(stats_df, savefile=None):
         plt.show()
 
 # -------------------------------
+# Plot 4: Boxplot with outliers
+# -------------------------------
+def plot_boxplot(df, savefile=None):
+    fig, axes = plt.subplots(1, 2, figsize=(14, 6), sharey=True)
+    type_map = {1: "WebSearch", 2: "DataMining"}
+
+    for idx, t in enumerate([1, 2]):
+        subset = df[df["traffic_type"] == t]
+        # Lista med FCT per intensitet
+        data = [subset[subset["intensity"] == i]["fct_s"].values 
+                for i in sorted(subset["intensity"].unique())]
+
+        # Boxplot med outliers aktiverat
+        bp = axes[idx].boxplot(
+            data,
+            positions=range(1, len(data)+1),
+            showfliers=True,           # ✅ visa outliers
+            patch_artist=True,         # färgade boxar
+            boxprops=dict(facecolor="skyblue", color="black"),
+            medianprops=dict(color="red", linewidth=2),
+            whiskerprops=dict(color="black"),
+            capprops=dict(color="black"),
+            flierprops=dict(marker="o", markerfacecolor="orange", markersize=6, linestyle="none")
+        )
+
+        axes[idx].set_title(type_map[t])
+        axes[idx].set_xlabel("Traffic Intensity (flows/s)")
+        if idx == 0:
+            axes[idx].set_ylabel("Flow Completion Time (s)")
+        axes[idx].set_xticks(range(1, len(data)+1))
+        axes[idx].grid(True, axis="y")
+
+    plt.suptitle("Flow Completion Time Distribution (with Outliers)")
+    plt.tight_layout()
+
+    if savefile:
+        plt.savefig(savefile)
+        print(f"[Saved] {savefile}")
+    else:
+        plt.show()
+
+
+# -------------------------------
 # Main
 # -------------------------------
 def main():
-    flows_df = load_flows("flows.jsonl")
-    stats_df = load_stats("stats.csv")
+    flows_df = load_flows("Attempts/Attempt_2(High_Sizes)/flows.jsonl")
+    stats_df = load_stats("Attempts/Attempt_2(High_Sizes)/stats.csv")
 
     # Plot 1 – CDFs
     plot_cdf(flows_df, 1, "cdf_websearch.png")
@@ -110,6 +154,9 @@ def main():
 
     # Plot 3 – Percentiles
     plot_percentiles(stats_df, "percentiles_fct.png")
+
+    # Plot 4 – Boxplot
+    plot_boxplot(flows_df, "boxplot_fct.png")
 
 if __name__ == "__main__":
     main()
