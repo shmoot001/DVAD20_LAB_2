@@ -142,8 +142,8 @@ def plot_boxplot(df, savefile=None):
 # Main
 # -------------------------------
 def main():
-    flows_df = load_flows("Attempts/Attempt_2(High_Sizes)/flows.jsonl")
-    stats_df = load_stats("Attempts/Attempt_2(High_Sizes)/stats.csv")
+    flows_df = load_flows("Attempts/Attempt_1(Low_Sizes)/flows.jsonl")
+    stats_df = load_stats("Attempts/Attempt_1(Low_Sizes)/stats.csv")
 
     # Plot 1 – CDFs
     plot_cdf(flows_df, 1, "cdf_websearch.png")
